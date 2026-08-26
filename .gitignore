@@ -1,0 +1,74 @@
+# .gitignore for Unity
+
+# This file tells Git which files and folders to ignore when pushing to GitHub.
+# These are typically large, auto-generated, or system files that don't need version control.
+
+# ===== UNITY GENERATED FILES =====
+Library/
+Logs/
+Temp/
+obj/
+Builds/
+UserSettings/
+
+# ===== BUILD OUTPUTS =====
+*.apk
+*.aab
+*.exe
+*.app
+*.ipa
+*.unitypackage
+
+# ===== VISUAL STUDIO / RIDER =====
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.DotSettings
+*.DotSettings.user
+
+# ===== MONODEVELOP / VISUAL STUDIO CODE =====
+ExportedObj/
+*.svd
+*.pidb
+*.pidb.meta
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# ===== OS FILES =====
+Thumbs.db
+.DS_Store
+*.swp
+*.swo
+*~
+
+# ===== PROJECT-SPECIFIC =====
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# Asset meta files (usually safe to include, but optional)
+# Uncomment to exclude:
+# *.meta
+
+# Visual Studio cache directory
+.vs/
+
+# Uncomment if you have packages that shouldn't be tracked
+# Packages/packages-lock.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# Mac
+.DS_Store
