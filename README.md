@@ -228,7 +228,3 @@ For development contribution guidelines, see `DEVELOPMENT.md`.
 (To be decided)
 
 ---
-
-## Contact
-
-For questions or suggestions about Network Shift, please open an issue on GitHub.
