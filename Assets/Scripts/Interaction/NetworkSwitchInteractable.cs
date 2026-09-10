@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class NetworkSwitchInteractable : Interactable
 {
-    public CableConnectionVisual cableVisual;
+    [SerializeField] private CableConnectionVisual cableVisual;
+    [SerializeField] private CableConnectionPanel cableConnectionPanel;
 
     public override void Interact()
     {
@@ -11,7 +12,7 @@ public class NetworkSwitchInteractable : Interactable
 
         if (objectiveManager == null)
         {
-            Debug.LogError("MissionObjectiveManager not found!");
+            Debug.LogError("NetworkSwitchInteractable: MissionObjectiveManager not found!");
             return;
         }
 
@@ -25,23 +26,59 @@ public class NetworkSwitchInteractable : Interactable
             return;
         }
 
-        // Second interaction: connect the cable
-        if (objectiveManager.CableFound &&
-            !objectiveManager.CableConnected)
+        // Second interaction: open cable connection UI
+        if (objectiveManager.CableFound && !objectiveManager.CableConnected)
         {
-            Debug.Log("Ethernet Cable connected to Network Switch!");
+            Debug.Log("Opening Cable Connection UI...");
 
-            // SHOW THE CONNECTED CABLE
-            if (cableVisual != null)
+            if (cableConnectionPanel != null)
             {
-                cableVisual.ConnectCable();
+                cableConnectionPanel.OpenConnectionUI(this);
             }
-
-            objectiveManager.CompleteCableConnected();
+            else
+            {
+                Debug.LogError("NetworkSwitchInteractable: CableConnectionPanel reference not assigned!");
+            }
 
             return;
         }
 
         Debug.Log("Network Switch already repaired.");
+    }
+
+    public void OnPortSelected(int portNumber)
+    {
+        // Validate port number is between 1 and 10
+        if (portNumber < 1 || portNumber > 10)
+        {
+            Debug.LogError($"NetworkSwitchInteractable: Invalid port number {portNumber}. Must be between 1 and 10.");
+            return;
+        }
+
+        Debug.Log($"NetworkSwitchInteractable: Port {portNumber} selected, connecting cable...");
+
+        MissionObjectiveManager objectiveManager =
+            FindFirstObjectByType<MissionObjectiveManager>();
+
+        if (objectiveManager == null)
+        {
+            Debug.LogError("NetworkSwitchInteractable: MissionObjectiveManager not found in OnPortSelected!");
+            return;
+        }
+
+        // Display physical cable connection
+        if (cableVisual != null)
+        {
+            cableVisual.ConnectCable();
+        }
+        else
+        {
+            Debug.LogError("NetworkSwitchInteractable: CableConnectionVisual reference not assigned!");
+        }
+
+        // Complete the mission objective
+        objectiveManager.CompleteCableConnected();
+
+        Debug.Log($"Cable connected to port {portNumber}. Mission objective completed.");
     }
 }
