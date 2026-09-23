@@ -81,12 +81,23 @@ public class CableConnectionPanel : MonoBehaviour
             return;
         }
 
-        NetworkSwitchInteractable switchToNotify = currentNetworkSwitch;
-        int portToConnect = portNumber;
+        bool connectionSuccessful =
+            currentNetworkSwitch.OnPortSelected(portNumber);
 
-        CloseConnectionUI();
+        if (connectionSuccessful)
+        {
+            CloseConnectionUI();
+        }
+        else
+        {
+            if (instructionText != null)
+            {
+                instructionText.text =
+                    $"Port {portNumber} is incorrect. Try another port.";
+            }
 
-        switchToNotify.OnPortSelected(portToConnect);
+            Debug.Log($"Port {portNumber} was incorrect. Connection UI remains open.");
+        }
     }
 
     public void OnCancelClicked()
