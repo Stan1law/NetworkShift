@@ -19,15 +19,20 @@ public class NetworkSwitchInteractable : Interactable
             return;
         }
 
+        // The player must find the Ethernet cable first.
+        if (!objectiveManager.CableFound)
+        {
+            Debug.Log("I should find the Ethernet cable before checking the switch.");
+            return;
+        }
+
         // First interaction: inspect the switch
         if (!objectiveManager.SwitchInspected)
         {
             Debug.Log("Network Switch inspected!");
 
-            // Complete the inspection objective
             objectiveManager.CompleteNetworkSwitch();
 
-            // Show inspection information
             if (inspectionPanel != null)
             {
                 inspectionPanel.OpenInspectionUI();

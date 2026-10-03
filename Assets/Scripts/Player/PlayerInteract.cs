@@ -30,21 +30,41 @@ public class PlayerInteract : MonoBehaviour
             return;
         }
 
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = Camera.main.ViewportPointToRay(
+            new Vector3(0.5f, 0.5f, 0)
+        );
 
-        if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
+        if (Physics.Raycast(
+            ray,
+            out RaycastHit hit,
+            interactDistance))
         {
-            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            Interactable interactable =
+                hit.collider.GetComponentInParent<Interactable>();
 
             if (interactable != null)
             {
                 currentInteractable = interactable;
-                InteractionUI.Instance.Show(interactable.interactionText);
+
+                InteractionUI.Instance.Show(
+                    interactable.interactionText
+                );
+
                 return;
             }
         }
 
         currentInteractable = null;
         InteractionUI.Instance.Hide();
+    }
+
+    private void OnDisable()
+    {
+        currentInteractable = null;
+
+        if (InteractionUI.Instance != null)
+        {
+            InteractionUI.Instance.Hide();
+        }
     }
 }
