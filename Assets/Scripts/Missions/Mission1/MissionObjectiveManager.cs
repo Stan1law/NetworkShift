@@ -1,9 +1,16 @@
+
 using UnityEngine;
 using TMPro;
 
 public class MissionObjectiveManager : MonoBehaviour
 {
+    [Header("Objective UI")]
     public TMP_Text objectiveText;
+    [SerializeField] private GameObject objectivePanel;
+    [SerializeField]
+    private MissionCompleteUI missionCompleteUI;
+
+    public bool CableConnectedToPC { get; private set; }
 
     public bool PCInspected { get; private set; }
     public bool CableFound { get; private set; }
@@ -15,15 +22,36 @@ public class MissionObjectiveManager : MonoBehaviour
         UpdateObjectives();
     }
 
+    public void SetObjectivePanelVisible(bool visible)
+    {
+        if (objectivePanel != null)
+        {
+            objectivePanel.SetActive(visible);
+        }
+    }
+
+    public void CompleteCableConnectedToPC()
+    {
+        if (CableConnectedToPC)
+            return;
+
+        if (!CableFound)
+        {
+            Debug.Log("Find the Ethernet cable first.");
+            return;
+        }
+
+        CableConnectedToPC = true;
+        Debug.Log("Ethernet cable connected to PC7.");
+    }
+
     public void CompletePCInspection()
     {
         if (PCInspected)
             return;
 
         PCInspected = true;
-
         Debug.Log("Objective completed: Inspect PC7");
-
         UpdateObjectives();
     }
 
@@ -32,7 +60,6 @@ public class MissionObjectiveManager : MonoBehaviour
         if (CableFound)
             return;
 
-        // Don't allow the cable objective before PC7 is inspected.
         if (!PCInspected)
         {
             Debug.Log("You should inspect PC7 first.");
@@ -40,9 +67,7 @@ public class MissionObjectiveManager : MonoBehaviour
         }
 
         CableFound = true;
-
         Debug.Log("Objective completed: Find the Ethernet Cable");
-
         UpdateObjectives();
     }
 
@@ -51,7 +76,6 @@ public class MissionObjectiveManager : MonoBehaviour
         if (SwitchInspected)
             return;
 
-        // Don't allow the switch before the cable is found.
         if (!CableFound)
         {
             Debug.Log("Find the Ethernet cable before inspecting the switch.");
@@ -59,9 +83,7 @@ public class MissionObjectiveManager : MonoBehaviour
         }
 
         SwitchInspected = true;
-
         Debug.Log("Objective completed: Inspect the Network Switch");
-
         UpdateObjectives();
     }
 
@@ -70,7 +92,6 @@ public class MissionObjectiveManager : MonoBehaviour
         if (CableConnected)
             return;
 
-        // Don't allow connection before the investigation is complete.
         if (!PCInspected || !CableFound || !SwitchInspected)
         {
             Debug.Log("Complete the troubleshooting steps first.");
@@ -78,11 +99,8 @@ public class MissionObjectiveManager : MonoBehaviour
         }
 
         CableConnected = true;
-
         Debug.Log("Objective completed: Connect the Cable");
-
         UpdateObjectives();
-
         MissionComplete();
     }
 
@@ -108,8 +126,25 @@ public class MissionObjectiveManager : MonoBehaviour
         objectiveText.text = text;
     }
 
+
     private void MissionComplete()
     {
         Debug.Log("MISSION 01 COMPLETE!");
+
+        // Hide the normal mission objectives.
+        SetObjectivePanelVisible(false);
+
+        // Display the completion screen.
+        if (missionCompleteUI != null)
+        {
+            missionCompleteUI.ShowMissionComplete();
+        }
+        else
+        {
+            Debug.LogError(
+                "MissionObjectiveManager: MissionCompleteUI is not assigned!"
+            );
+        }
     }
+
 }

@@ -51,6 +51,12 @@ public class CableConnectionPanel : MonoBehaviour
         // Disable player controls IMMEDIATELY
         DisablePlayerControls();
 
+        MissionObjectiveManager objectiveManager =
+            FindFirstObjectByType<MissionObjectiveManager>();
+
+        if (objectiveManager != null)
+            objectiveManager.SetObjectivePanelVisible(false);
+
         // Show the UI panel
         if (panelGameObject != null)
             panelGameObject.SetActive(true);
@@ -114,6 +120,12 @@ public class CableConnectionPanel : MonoBehaviour
 
         // Restore player controls
         RestorePlayerControls();
+
+        MissionObjectiveManager objectiveManager =
+            FindFirstObjectByType<MissionObjectiveManager>();
+
+        if (objectiveManager != null)
+            objectiveManager.SetObjectivePanelVisible(true);
 
         // Lock and hide cursor
         Cursor.lockState = CursorLockMode.Locked;

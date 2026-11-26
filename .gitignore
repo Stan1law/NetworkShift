@@ -27,3 +27,14 @@ Recordings/
 
 # Asset metadata should NOT be ignored
 !Assets/**/*.meta
+
+# Local experiments outside the Unity project
+/flutter_application_1/
+/test_web/
+
+# Local Windows build output
+/NetworkShift.exe/
+
+# Imported asset backup files
+*.bak
+*.bak.meta

@@ -1,10 +1,13 @@
+
 using UnityEngine;
 
 public class NetworkSwitchInteractable : Interactable
 {
+    [Header("UI References")]
     [SerializeField] private CableConnectionVisual cableVisual;
     [SerializeField] private CableConnectionPanel cableConnectionPanel;
     [SerializeField] private NetworkSwitchInspectionPanel inspectionPanel;
+    [SerializeField] private Mission01HeldCableVisual heldCableVisual;
 
     public override void Interact()
     {
@@ -19,18 +22,15 @@ public class NetworkSwitchInteractable : Interactable
             return;
         }
 
-        // The player must find the Ethernet cable first.
         if (!objectiveManager.CableFound)
         {
-            Debug.Log("I should find the Ethernet cable before checking the switch.");
+            Debug.Log("Find the Ethernet cable before inspecting the switch.");
             return;
         }
 
-        // First interaction: inspect the switch
+        // First interaction: inspect the switch.
         if (!objectiveManager.SwitchInspected)
         {
-            Debug.Log("Network Switch inspected!");
-
             objectiveManager.CompleteNetworkSwitch();
 
             if (inspectionPanel != null)
@@ -40,20 +40,16 @@ public class NetworkSwitchInteractable : Interactable
             else
             {
                 Debug.LogError(
-                    "NetworkSwitchInteractable: Inspection Panel reference not assigned!"
+                    "NetworkSwitchInteractable: Inspection Panel is not assigned!"
                 );
             }
 
             return;
         }
 
-        // Second interaction after cable is found:
-        // open the cable connection UI
-        if (objectiveManager.CableFound &&
-            !objectiveManager.CableConnected)
+        // Open the port-selection UI until the connection succeeds.
+        if (!objectiveManager.CableConnected)
         {
-            Debug.Log("Opening Cable Connection UI...");
-
             if (cableConnectionPanel != null)
             {
                 cableConnectionPanel.OpenConnectionUI(this);
@@ -61,7 +57,7 @@ public class NetworkSwitchInteractable : Interactable
             else
             {
                 Debug.LogError(
-                    "NetworkSwitchInteractable: CableConnectionPanel reference not assigned!"
+                    "NetworkSwitchInteractable: Cable Connection Panel is not assigned!"
                 );
             }
 
@@ -71,57 +67,77 @@ public class NetworkSwitchInteractable : Interactable
         Debug.Log("Network Switch already repaired.");
     }
 
+
     public bool OnPortSelected(int portNumber)
     {
+        // 1. Validate the port number.
         if (portNumber < 1 || portNumber > 10)
         {
-            Debug.LogError(
-                $"NetworkSwitchInteractable: Invalid port number {portNumber}. " +
-                "Port must be between 1 and 10."
-            );
-
+            Debug.LogError($"Invalid port {portNumber}. Choose a port from 1 to 10.");
             return false;
         }
 
-        // Port 7 is the required port for Mission 1.
+        // 2. Only Port 7 is correct.
         if (portNumber != 7)
         {
             Debug.Log($"Port {portNumber} is incorrect. Port 7 is required.");
-
             return false;
         }
 
-        Debug.Log("Correct port selected: Port 7.");
-
+        // 3. Find the mission manager.
         MissionObjectiveManager objectiveManager =
             FindFirstObjectByType<MissionObjectiveManager>();
 
         if (objectiveManager == null)
         {
-            Debug.LogError(
-                "NetworkSwitchInteractable: MissionObjectiveManager not found!"
-            );
-
+            Debug.LogError("MissionObjectiveManager not found!");
             return false;
         }
 
-        if (cableVisual != null)
+        // 4. Verify that the cable is connected to PC7.
+        EthernetCableInteractable cable =
+            FindFirstObjectByType<EthernetCableInteractable>();
+
+        if (cable == null || !cable.IsConnectedToPC ||
+            !objectiveManager.CableConnectedToPC)
         {
-            cableVisual.ConnectCable();
+            Debug.Log("Connect the Ethernet cable to PC7 first.");
+            return false;
+        }
+
+        // 5. Connect the cable to the switch.
+        if (!cable.ConnectToSwitch())
+            return false;
+
+        // 6. Display the permanent PC7-to-switch cable.
+        if (cableVisual == null)
+        {
+            Debug.LogError("Cable Visual is not assigned!");
+            return false;
+        }
+
+        cableVisual.ShowCable();
+
+        if (heldCableVisual != null)
+        {
+            heldCableVisual.HideHeldCable();
         }
         else
         {
             Debug.LogError(
-                "NetworkSwitchInteractable: CableConnectionVisual reference not assigned!"
+                "NetworkSwitchInteractable: Mission 1 Held Cable Visual is not assigned!"
             );
-
             return false;
         }
 
+    
+      
+
+        // 8. Complete the mission objective.
         objectiveManager.CompleteCableConnected();
 
-        Debug.Log("Cable connected to Port 7. Mission objective completed.");
-
+        Debug.Log("Port 7 connected. Held cable hidden; connection visual retained.");
         return true;
     }
+
 }

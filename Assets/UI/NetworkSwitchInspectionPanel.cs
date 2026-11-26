@@ -44,6 +44,12 @@ public class NetworkSwitchInspectionPanel : MonoBehaviour
     {
         DisablePlayerControls();
 
+        MissionObjectiveManager objectiveManager =
+            FindFirstObjectByType<MissionObjectiveManager>();
+
+        if (objectiveManager != null)
+            objectiveManager.SetObjectivePanelVisible(false);
+
         if (panelGameObject != null)
             panelGameObject.SetActive(true);
 
@@ -78,6 +84,12 @@ public class NetworkSwitchInspectionPanel : MonoBehaviour
             panelGameObject.SetActive(false);
 
         RestorePlayerControls();
+
+        MissionObjectiveManager objectiveManager =
+            FindFirstObjectByType<MissionObjectiveManager>();
+
+        if (objectiveManager != null)
+            objectiveManager.SetObjectivePanelVisible(true);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

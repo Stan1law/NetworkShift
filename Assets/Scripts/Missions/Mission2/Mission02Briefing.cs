@@ -1,18 +1,27 @@
+
 using UnityEngine;
 
 public class Mission02Briefing : MonoBehaviour
 {
+    [Header("UI Panels")]
     [SerializeField] private GameObject briefingPanel;
+    [SerializeField] private GameObject objectivePanel;
 
+    [Header("Player Controls")]
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private MouseLook mouseLook;
     [SerializeField] private PlayerInteract playerInteract;
 
     private void Start()
     {
-        briefingPanel.SetActive(true);
+        // Show briefing and hide objective at mission start.
+        if (briefingPanel != null)
+            briefingPanel.SetActive(true);
 
-        // Disable player controls while briefing is open
+        if (objectivePanel != null)
+            objectivePanel.SetActive(false);
+
+        // Disable player controls while briefing is open.
         if (playerMovement != null)
             playerMovement.enabled = false;
 
@@ -22,16 +31,21 @@ public class Mission02Briefing : MonoBehaviour
         if (playerInteract != null)
             playerInteract.enabled = false;
 
-        // Allow the player to use the UI
+        // Allow the player to use the UI.
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
     public void StartMission()
     {
-        briefingPanel.SetActive(false);
+        // Close briefing and show the objective HUD.
+        if (briefingPanel != null)
+            briefingPanel.SetActive(false);
 
-        // Restore player controls
+        if (objectivePanel != null)
+            objectivePanel.SetActive(true);
+
+        // Restore player controls.
         if (playerMovement != null)
             playerMovement.enabled = true;
 
@@ -41,7 +55,7 @@ public class Mission02Briefing : MonoBehaviour
         if (playerInteract != null)
             playerInteract.enabled = true;
 
-        // Return to first-person mouse control
+        // Return to first-person mouse control.
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

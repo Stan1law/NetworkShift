@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
@@ -5,12 +6,26 @@ public class PlayerInteract : MonoBehaviour
     public float interactDistance = 3f;
 
     private Interactable currentInteractable;
+    private bool interactionLocked;
+
+    public void SetInteractionLocked(bool locked)
+    {
+        interactionLocked = locked;
+        currentInteractable = null;
+
+        if (InteractionUI.Instance != null)
+            InteractionUI.Instance.Hide();
+    }
 
     void Update()
     {
+        if (interactionLocked)
+            return;
+
         CheckForInteractable();
 
-        if (Input.GetKeyDown(KeyCode.E) && currentInteractable != null)
+        if (Input.GetKeyDown(KeyCode.E) &&
+            currentInteractable != null)
         {
             currentInteractable.Interact();
         }
@@ -18,15 +33,10 @@ public class PlayerInteract : MonoBehaviour
 
     void CheckForInteractable()
     {
-        if (Camera.main == null)
+        if (Camera.main == null ||
+            InteractionUI.Instance == null)
         {
-            Debug.Log("NO MAIN CAMERA");
-            return;
-        }
-
-        if (InteractionUI.Instance == null)
-        {
-            Debug.Log("NO INTERACTION UI");
+            currentInteractable = null;
             return;
         }
 
@@ -34,10 +44,7 @@ public class PlayerInteract : MonoBehaviour
             new Vector3(0.5f, 0.5f, 0)
         );
 
-        if (Physics.Raycast(
-            ray,
-            out RaycastHit hit,
-            interactDistance))
+        if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
         {
             Interactable interactable =
                 hit.collider.GetComponentInParent<Interactable>();
@@ -45,11 +52,7 @@ public class PlayerInteract : MonoBehaviour
             if (interactable != null)
             {
                 currentInteractable = interactable;
-
-                InteractionUI.Instance.Show(
-                    interactable.interactionText
-                );
-
+                InteractionUI.Instance.Show(interactable.interactionText);
                 return;
             }
         }
@@ -63,8 +66,6 @@ public class PlayerInteract : MonoBehaviour
         currentInteractable = null;
 
         if (InteractionUI.Instance != null)
-        {
             InteractionUI.Instance.Hide();
-        }
     }
 }

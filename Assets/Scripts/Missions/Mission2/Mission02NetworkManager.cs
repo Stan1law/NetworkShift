@@ -1,5 +1,9 @@
+using UnityEngine.SceneManagement;
+using TMPro;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine;
+
 
 public class Mission02NetworkManager : MonoBehaviour
 {
@@ -11,6 +15,22 @@ public class Mission02NetworkManager : MonoBehaviour
     private Dictionary<Mission02SwitchPort, Mission02PCInteractable> portConnections =
         new Dictionary<Mission02SwitchPort, Mission02PCInteractable>();
 
+    [Header("Held Cable")]
+    [SerializeField] private Mission02HeldCableVisual heldCableVisual;
+
+    [Header("Mission Results UI")]
+    [SerializeField] private GameObject resultsPanel;
+
+    [Header("Mission Results UI")]
+    [SerializeField] private GameObject Mission02sresultsPanel;
+    [SerializeField] private TMP_Text resultsText;
+    [SerializeField] private Button continueButton;
+    [SerializeField] private Button returnToMenuButton;
+
+    [Header("Scene Names")]
+    [SerializeField] private string nextSceneName = "Mission_03";
+    [SerializeField] private string menuSceneName = "Lobby";
+
     private bool missionCompleted = false;
 
     private int incorrectConnectionAttempts = 0;
@@ -18,6 +38,51 @@ public class Mission02NetworkManager : MonoBehaviour
     private int hintsUsed = 0;
 
     private int verificationAttempts = 0;
+
+    private void Start()
+    {
+        if (resultsPanel != null)
+            resultsPanel.SetActive(false);
+
+        if (continueButton != null)
+            continueButton.onClick.AddListener(ContinueToNextMission);
+
+        if (returnToMenuButton != null)
+            returnToMenuButton.onClick.AddListener(ReturnToMenu);
+    }
+
+    private void OnDestroy()
+    {
+        if (continueButton != null)
+            continueButton.onClick.RemoveListener(ContinueToNextMission);
+
+        if (returnToMenuButton != null)
+            returnToMenuButton.onClick.RemoveListener(ReturnToMenu);
+    }
+
+    private void ContinueToNextMission()
+    {
+        LoadScene(nextSceneName);
+    }
+
+    private void ReturnToMenu()
+    {
+        LoadScene(menuSceneName);
+    }
+
+    private void LoadScene(string sceneName)
+    {
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            Debug.LogError(
+                "Cannot load scene '" + sceneName +
+                "'. Check Build Profiles and the exact scene name."
+            );
+            return;
+        }
+
+        SceneManager.LoadScene(sceneName);
+    }
 
 
     public void SelectPC(Mission02PCInteractable pc)
@@ -43,6 +108,37 @@ public class Mission02NetworkManager : MonoBehaviour
         Debug.Log(
             $"{pc.name} is now the active PC for network connection."
         );
+
+        Transform pcPoint =
+            pc.transform.Find("CableConnectionPoint");
+
+        if (heldCableVisual != null && pcPoint != null)
+        {
+            heldCableVisual.BeginCarry(pcPoint);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Held cable or PC CableConnectionPoint is missing."
+            );
+        }
+    }
+
+    private void ShowResults()
+    {
+        if (resultsText != null)
+        {
+            resultsText.text =
+                "MISSION 02 COMPLETE\n\n" +
+                "NETWORK SUCCESSFULLY BUILT\n\n" +
+                "[X] All four PCs connected\n" +
+                "[X] Network verification passed";
+        }
+
+        if (resultsPanel != null)
+            resultsPanel.SetActive(true);
+        else
+            Debug.LogError("Mission 2 Results Panel is not assigned.");
     }
 
 
@@ -58,6 +154,11 @@ public class Mission02NetworkManager : MonoBehaviour
         {
             Debug.Log("Mission 02 is already complete.");
             return;
+        }
+
+        if (heldCableVisual != null)
+        {
+            heldCableVisual.EndCarry();
         }
 
         if (selectedPC == null)
@@ -225,6 +326,8 @@ public class Mission02NetworkManager : MonoBehaviour
             return;
 
         missionCompleted = true;
+
+        ShowResults();
 
         Debug.Log("===============================");
         Debug.Log("MISSION 02 COMPLETE!");
